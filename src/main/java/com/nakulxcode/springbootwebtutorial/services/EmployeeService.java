@@ -2,6 +2,7 @@ package com.nakulxcode.springbootwebtutorial.services;
 
 import com.nakulxcode.springbootwebtutorial.dto.EmployeeDTO;
 import com.nakulxcode.springbootwebtutorial.entities.EmployeeEntity;
+import com.nakulxcode.springbootwebtutorial.exceptions.ResourceNotFoundException;
 import com.nakulxcode.springbootwebtutorial.repositories.EmployeeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.util.ReflectionUtils;
@@ -46,6 +47,11 @@ public class EmployeeService {
     }
 
     public EmployeeDTO updateEmployeeById(Long employeeId, EmployeeDTO employeeDTO) {
+        boolean exists = employeeRepository.existsById(employeeId);
+        if (!exists) {
+            throw new ResourceNotFoundException("Employee not found with id: " + employeeId);
+
+        }
         EmployeeEntity employeeEntity = modelMapper.map(employeeDTO, EmployeeEntity.class);
         employeeEntity.setId(employeeId);
         EmployeeEntity savedEmployeeEntity = employeeRepository.save(employeeEntity);
@@ -59,7 +65,7 @@ public class EmployeeService {
     public boolean deleteEmployeeById(Long employeeId) {
         boolean exists = employeeRepository.existsById(employeeId);
         if(!exists) {
-            return false;
+            throw new ResourceNotFoundException("Employee not found with id: " + employeeId);
         }
         employeeRepository.deleteById(employeeId);
         return true;
@@ -69,7 +75,7 @@ public class EmployeeService {
         boolean exists = employeeRepository.existsById(employeeId);
         if (!exists)
         {
-            return null;
+            throw new ResourceNotFoundException("Employee not found with id: " + employeeId);
         }
         EmployeeEntity employeeEntity = employeeRepository.findById(employeeId).get();
         updates.forEach((field, value) -> {

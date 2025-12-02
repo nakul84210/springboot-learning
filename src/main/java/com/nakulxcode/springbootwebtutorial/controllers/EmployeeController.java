@@ -2,6 +2,7 @@ package com.nakulxcode.springbootwebtutorial.controllers;
 
 import com.nakulxcode.springbootwebtutorial.dto.EmployeeDTO;
 import com.nakulxcode.springbootwebtutorial.entities.EmployeeEntity;
+import com.nakulxcode.springbootwebtutorial.exceptions.ResourceNotFoundException;
 import com.nakulxcode.springbootwebtutorial.services.EmployeeService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ public class EmployeeController {
         return
                 employeeDTO
                         .map(employeeDTO1 -> ResponseEntity.ok(employeeDTO1))
-                        .orElse(ResponseEntity.notFound().build());
+                        .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + employeeId));
     }
 
     @GetMapping
@@ -55,7 +56,7 @@ public class EmployeeController {
     }
 
     @PutMapping(path = "/{employeeId}")
-    public ResponseEntity<EmployeeDTO> updateEmployeeById(@RequestBody EmployeeDTO employeeDTO, @PathVariable Long employeeId)
+    public ResponseEntity<EmployeeDTO> updateEmployeeById(@RequestBody @Valid EmployeeDTO employeeDTO, @PathVariable Long employeeId)
     {
         return ResponseEntity.ok(employeeService.updateEmployeeById(employeeId, employeeDTO));
     }
